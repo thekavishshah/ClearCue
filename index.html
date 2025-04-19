@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ClearCue</title>
+</head>
+<body style="font-family: sans-serif; padding: 20px;">
+    <h2>ClearCue – Explain Text with AI</h2>
+    <form id="textForm">
+        <textarea name="text" rows="6" cols="60" placeholder="Paste a message, tweet, or email..."></textarea><br><br>
+        <button type="submit">Explain</button>
+    </form>
+    <br>
+    <div id="result" style="font-weight: bold;"></div>
+
+    <script>
+        document.getElementById('textForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/explain', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('result').textContent = data.explanation;
+            })
+            .catch(err => {
+                document.getElementById('result').textContent = "Something went wrong.";
+                console.error(err);
+            });
+        });
+    </script>
+</body>
+</html>
