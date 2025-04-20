@@ -1,36 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>ClearCue</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClearCue – Explain Text with AI</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body style="font-family: sans-serif; padding: 20px;">
-    <h2>ClearCue – Explain Text with AI</h2>
-    <form id="textForm">
-        <textarea name="text" rows="6" cols="60" placeholder="Paste a message, tweet, or email..."></textarea><br><br>
-        <button type="submit">Explain</button>
-    </form>
-    <br>
-    <div id="result" style="font-weight: bold;"></div>
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container">
+      <a class="navbar-brand" href="#"><i class="fa-solid fa-lightbulb"></i> ClearCue</a>
+    </div>
+  </nav>
 
-    <script>
-        document.getElementById('textForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const formData = new FormData(this);
+  <header class="bg-primary text-white text-center py-5 mb-4" style="background: linear-gradient(135deg, #4e73df 0%, #1cc88a 100%);">
+    <div class="container">
+      <h1 class="fw-light">Explain Text with AI</h1>
+      <p class="lead">Turn confusion into clarity in one click</p>
+    </div>
+  </header>
 
-            fetch('/explain', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('result').textContent = data.explanation;
-            })
-            .catch(err => {
-                document.getElementById('result').textContent = "Something went wrong.";
-                console.error(err);
-            });
-        });
-    </script>
+  <div id="content" class="container flex-grow-1 mb-0">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form id="textForm">
+          <div class="mb-3">
+            <textarea name="text" class="form-control form-control-lg" rows="5" placeholder="Paste a message, tweet, or email…"></textarea>
+          </div>
+          <button class="btn btn-success btn-lg w-100" type="submit"><i class="fa-solid fa-magic me-2"></i>Explain</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="loading" class="text-center mb-4" style="display:none;">
+      <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div id="result" class="card shadow result-card" style="display:none;">
+      <div class="card-body">
+        <h5 class="card-title">Explanation</h5>
+        <p class="card-text" id="result-text"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-light text-center py-3 border-top mt-auto">
+    <small>Built with ❤️ and AI | © 2025 ClearCue</small>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const form = document.getElementById('textForm');
+    const resultCard = document.getElementById('result');
+    const resultText = document.getElementById('result-text');
+    const loading = document.getElementById('loading');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      resultCard.style.display = 'none';
+      loading.style.display = 'block';
+
+      const res = await fetch('/explain', { method: 'POST', body: new FormData(form) });
+      const data = await res.json();
+      loading.style.display = 'none';
+
+      if (data.error) {
+        resultCard.classList.remove('border-success');
+        resultCard.classList.add('border-danger');
+        resultText.textContent = data.error;
+      } else {
+        resultCard.classList.remove('border-danger');
+        resultCard.classList.add('border-success');
+        resultText.textContent = data.explanation;
+      }
+      resultCard.style.display = 'block';
+    });
+  </script>
 </body>
 </html>
